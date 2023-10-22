@@ -1,4 +1,4 @@
-# MertaScript - Counter-Strike Game Commentator
+# MertaScript 2 - Counter-Strike Game Commentator
 
 ## Introduction
 
