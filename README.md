@@ -87,7 +87,7 @@ modifying the translation files included in the game. These files are client-bas
 them locally (and probably re-change after every game update).
 
 In practice, this means that when a BOT player is added in the game, their hardcoded name appears in the game log files,
-but their display name (the name that a players sees in the game) can be something else.
+but their display name (the name that a player sees in the game) can be something else.
 
 In **Counter-Strike: Global Offensive**, the BOT player names seen in the log files and in the game should be same, so
 alias names are not needed.
