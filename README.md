@@ -17,14 +17,12 @@ The application consists of two parts:
 
 ### Commentators
 
-There are two types of commentators:
+There are two types of commentators / audio players:
 
 - A global game commentator, which comments global game events. This commentator always favors the team set in the
   config file.
 - Every (BOT) player listed in the `players.json` file also have an individual commentator. This commentator comments
-  only the
-  events
-  of the player.
+  only the events of the player.
 
 ### Supported games
 
@@ -52,8 +50,7 @@ supported.
     - In client mode on the machine where you want to hear the comments
         - In practice this means that every player needs to run the application in client mode on their own machine.
           However, it may be more practical to run the application in client mode on a single (virtual) machine and then
-          use a
-          virtual audio cable to route the audio to a voice chat application (e.g. Mumble / Discord).
+          use a virtual audio cable to route the audio to a voice chat application (e.g. Mumble / Discord).
 
 ## Configuration
 
@@ -77,8 +74,7 @@ supported.
 ### players.json
 
 This file defines the (BOT) player names who play in the game and whose actions should be commented individually. Alias
-names are
-also supported, so that a specific player can be recognized with a different name.
+names are also supported, so that a specific player can be recognized with a different name.
 
 Good to know:
 
