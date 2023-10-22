@@ -79,7 +79,7 @@ names are also supported, so that a specific player can be recognized with a dif
 Good to know:
 
 In **Counter-Strike 2**, BOT player names are hardcoded in the game, but their display name can be changed by
-modifying the translation files included in the game. These files are client-based, i.e. every player needs to change
+modifying the translation files included in the game (`game/csgo/resource`). These files are client-based, i.e. every player needs to change
 them locally (and probably re-change after every game update).
 
 In practice, this means that when a BOT player is added in the game, their hardcoded name appears in the game log files,
