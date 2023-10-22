@@ -1,0 +1,14 @@
+start = host
+
+host_client_team_player_names = Ismo, Seppo
+host_game_event_sounds_folder = mertaranta
+host_player_event_sounds_folder = players
+host_round_time = 135
+host_max_rounds = 15
+host_c4_time = 45
+host_hostage_taken_time_bonus = 60
+host_logs_path = C:\SteamCMD\steamapps\common\Counter-Strike 2\Server\steamapps\common\Counter-Strike Global Offensive\game\csgo\logs
+host_port = 52829
+
+join_ip = localhost
+join_port = 52829
