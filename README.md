@@ -19,18 +19,16 @@ The application consists of two parts:
 
 There are two types of commentators / audio players:
 
-- A global game commentator, which comments global game events. This commentator always favors the team set in the
-  config file.
-- Every (BOT) player listed in the `players.json` file also have an individual commentator. This commentator comments
-  only the events of the player.
+- **Global game commentator**, which comments global game events. This commentator always favors the team set in the config file.
+- **Player commentator**. Every player listed in the `players.json` file also has an individual commentator. This commentator only comments the events of its specific player.
+  - This feature is mainly designed to give bot players personal voice comments. Ever wanted to play Counter-Strike against Duke Nukem and hear his immortal oneliners during the game?
 
 ### Supported games
 
-- Counter-Strike 2
 - Counter-Strike: Global Offensive
+- Counter-Strike 2
 
-Counter-Strike: Source also partially works due to the similarity of the log files, but it is not officially
-supported.
+Counter-Strike: Source also partially works due to the similarity of the log files, but it is not officially upported.
 
 ## Setup
 
@@ -73,17 +71,24 @@ supported.
 
 ### players.json
 
-This file defines the (BOT) player names who play in the game and whose actions should be commented individually. Alias
-names are also supported, so that a specific player can be recognized with a different name.
+This file defines the bot player names who play in the game and whose actions should be commented individually. Alias names are also supported, so that a specific player can be recognized by multiple names.
 
-Good to know:
+The names listed in this file should match the bot player names listed in the game, i.e. you should configure your game to use custom bot names.
 
-In **Counter-Strike 2**, BOT player names are hardcoded in the game, but their display name can be changed by
-modifying the translation files included in the game (`game/csgo/resource`). These files are client-based, i.e. every player needs to change
+### Defining bots in Counter-Strike: Global Offensive
+
+In **Counter-Strike: Global Offensive**, the bot player names can be modified easily on the server using a file named **botprofile.db**.
+
+### Renaming bots in Counter-Strike 2
+
+> [!NOTE]
+> Valve has disabled custom bot names in Counter-Strike 2 on 14 December, 2023. This guideline does not work anymore.
+
+In **Counter-Strike 2**, bot player names are hardcoded in the game, but their display name can be changed by
+modifying the translation files included in the game (`game/csgo/resource`). These files are **client-based**, i.e. every player needs to change
 them locally (and probably re-change after every game update).
 
-In practice, this means that when a BOT player is added in the game, their hardcoded name appears in the game log files,
-but their display name (the name that a player sees in the game) can be something else.
+In practice, this means that when a bot player is added in the game, their hardcoded name appears in the game's log files,
+but their display name in the game can be changed locally.
 
-In **Counter-Strike: Global Offensive**, the BOT player names seen in the log files and in the game should be same, so
-alias names are not needed.
+
