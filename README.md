@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This application reads and analyses Counter-Strike log files in real-time and plays audio comments when something
+This is a standalone application which reads and analyses Counter-Strike log files in real-time and plays audio comments when something
 interesting happens.
 
 The application is based on the original MertaScript from 2014, which was written in Python but has now been
