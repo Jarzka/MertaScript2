@@ -75,20 +75,27 @@ This file defines the bot player names who play in the game and whose actions sh
 
 The names listed in this file should match the bot player names listed in the game, i.e. you should configure your game to use custom bot names.
 
-### Defining bots in Counter-Strike: Global Offensive
+### Renaming bots in Counter-Strike: Global Offensive
 
-In **Counter-Strike: Global Offensive**, the bot player names can be modified easily on the server using a file named **botprofile.db**.
+Bot player names can be modified easily on the server using a file named **botprofile.db**.
 
 ### Renaming bots in Counter-Strike 2
 
-> [!NOTE]
-> Valve has disabled custom bot names in Counter-Strike 2 on 14 December, 2023. This guideline does not work anymore.
+In Counter-Strike 2, **botprofile.db** is located within the vpk files. These files cannot be edited directly, but their content can be overridden:
 
-In **Counter-Strike 2**, bot player names are hardcoded in the game, but their display name can be changed by
-modifying the translation files included in the game (`game/csgo/resource`). These files are **client-based**, i.e. every player needs to change
-them locally (and probably re-change after every game update).
+1. Download [VPKEdit](https://developer.valvesoftware.com/wiki/VPKEdit)
+2. Open VPKEdit, open file `game/csgo/pak01_dir.vpk` and look for `botprofile.db`
+3. Extract `botprofile.db` to a new, empty folder (the folder name does not matter)
+4. Use a text editor to make the desired changes in the `botprofile.db` file
+5. With VPKEdit, create a new VPK from the folder where you extracted the `botprofile.db` in step 3
+6. Rename the VPK file to `botprofile.vpk`
+7. Copy the newly created VPK to `game/csgo/overrides/botprofile.vpk` (you need to manually create the `overrides` folder)
+8. Modify the `game/csgo/gameinfo.gi` file: Add line `Game csgo/overrides/botprofile.vpk` between `lowViolence` and `Game csgo`, under FileSystem -> SearchPaths
 
-In practice, this means that when a bot player is added in the game, their hardcoded name appears in the game's log files,
-but their display name in the game can be changed locally.
+The end result should look like this:
 
+    Game_LowViolence csgo_lv
+    Game csgo/overrides/botprofile.vpk
+    Game csgo
 
+After this, your server should load the modified `botprofile.db`.
