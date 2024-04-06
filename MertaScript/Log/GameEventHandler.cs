@@ -61,12 +61,36 @@ public abstract class GameEventHandler {
   }
 
   private static bool ScanLineSomeoneKilledSomeone(string line) {
-    var regEx = ".* killed \".*";
-    var match = Regex.Match(line, regEx);
+    var someoneKilledSomeoneRegEx = ".* killed \".*";
+    var someoneKilledSomeoneMatch = Regex.Match(line, someoneKilledSomeoneRegEx);
 
-    if (match.Success) {
+    if (someoneKilledSomeoneMatch.Success) {
       Console.WriteLine($"Catch: {line}");
       GameCommentator.GetInstance().HandleEventSomeoneKilledSomeone();
+    }
+
+    var clientCtKilledSomeone = ConstructRegexClientTeamPlayers();
+    clientCtKilledSomeone += ".+<CT>.* killed .+";
+    var clientTKilledSomeone = ConstructRegexClientTeamPlayers();
+    clientTKilledSomeone += ".+<TERRORIST>.* killed .+";
+
+    var clientCtKilledSomeoneMatch = Regex.Match(line, clientCtKilledSomeone);
+    var clientTKilledSomeoneMatch = Regex.Match(line, clientTKilledSomeone);
+
+
+    if (someoneKilledSomeoneMatch.Success) {
+      Console.WriteLine($"Catch: {line}");
+      GameCommentator.GetInstance().HandleEventSomeoneKilledSomeone();
+    }
+
+    if (clientCtKilledSomeoneMatch.Success) {
+      Console.WriteLine($"Catch: {line}");
+      GameCommentator.GetInstance().HandleEventClientSwitchedTeam(TeamSide.Ct);
+    }
+
+    if (clientTKilledSomeoneMatch.Success) {
+      Console.WriteLine($"Catch: {line}");
+      GameCommentator.GetInstance().HandleEventClientSwitchedTeam(TeamSide.T);
     }
 
     return false; // This event should never stop other events from being checked
