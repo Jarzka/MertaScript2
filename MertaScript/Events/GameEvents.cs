@@ -69,16 +69,16 @@ public abstract class GameEvents {
       Id = GameEventId.RoundDraw, CommentProbability = 100, Importance = 5
     },
     new() {
-      Id = GameEventId.WinClient, CommentProbability = 100, Importance = 5
+      Id = GameEventId.WinClient, CommentProbability = 100, Importance = 10
     },
     new() {
-      Id = GameEventId.WinEnemy, CommentProbability = 100, Importance = 5
+      Id = GameEventId.WinEnemy, CommentProbability = 100, Importance = 10
     },
     new() {
       Id = GameEventId.Suicide, CommentProbability = 100, Importance = 5
     },
     new() {
-      Id = GameEventId.KillKnifeClientTeam, CommentProbability = 100, Importance = 5
+      Id = GameEventId.KillKnifeClientTeam, CommentProbability = 100, Importance = 8
     },
     new() {
       Id = GameEventId.KillKnifeEnemyTeam, CommentProbability = 100, Importance = 5
