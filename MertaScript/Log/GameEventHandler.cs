@@ -77,7 +77,6 @@ public abstract class GameEventHandler {
     var clientCtKilledSomeoneMatch = Regex.Match(line, clientCtKilledSomeone);
     var clientTKilledSomeoneMatch = Regex.Match(line, clientTKilledSomeone);
 
-
     if (someoneKilledSomeoneMatch.Success) {
       Console.WriteLine($"Catch: {line}");
       GameCommentator.GetInstance().HandleEventSomeoneKilledSomeone();
