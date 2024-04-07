@@ -36,7 +36,7 @@ public abstract class GameEventHandler {
       ScanLineClientTeamKillEnemyMachineGunHeadshot(line) ||
       ScanLineClientTeamJuhisKillEnemyHeadshot(line) ||
       ScanLineClientTeamKillEnemyHeadshot(line) ||
-      ScanLineEnemyTeamKillEnemyHeadshot(line) ||
+      ScanLineEnemyTeamKillClientHeadshot(line) ||
       ScanLineClientTeamKillEnemyKnife(line) ||
       ScanLineEnemyTeamKillClientTeamKnife(line) ||
       ScanLineClientTeamKillHegrenade(line) ||
@@ -167,7 +167,7 @@ public abstract class GameEventHandler {
     return true;
   }
 
-  private static bool ScanLineEnemyTeamKillEnemyHeadshot(string line) {
+  private static bool ScanLineEnemyTeamKillClientHeadshot(string line) {
     var regEx = ".* killed \".*";
     regEx += ConstructRegexClientTeamPlayers();
     regEx += ".+headshot";
