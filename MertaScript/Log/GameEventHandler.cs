@@ -53,7 +53,6 @@ public abstract class GameEventHandler {
       ScanLineMaxRounds(line) ||
       ScanLineC4Time(line) ||
       ScanLineTakeHostage(line) ||
-      //ScanLineRoundTime(line) ||
       ScanLineDefuse(line) ||
       ScanLineBombPlant(line) ||
       ScanLineLoadingMap(line) ||
@@ -441,29 +440,6 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventHostageTaken();
-    return true;
-  }
-
-  /**
-   * Buggy! Round time uses float in CS2
-   */
-  private static bool ScanLineRoundTime(string line) {
-    var regEx = "mp_roundtime.+?\\d+";
-    var match = Regex.Match(line, regEx);
-
-    if (!match.Success) return false;
-
-    Console.WriteLine("Catch: " + line);
-    // We need to get the value. Do this by selecting the digits from the match
-    var match2 = Regex.Match(match.Value, "\\d+");
-
-    if (!match2.Success) return true;
-
-    var roundTime = int.Parse(match2.Value);
-    roundTime *= 60;
-    GameCommentator.GetInstance().SetRoundTime(roundTime);
-    Console.WriteLine("Round time changed to " + roundTime + " seconds");
-
     return true;
   }
 
