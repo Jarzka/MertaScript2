@@ -271,8 +271,9 @@ public abstract class GameEventHandler {
 
     if (!match.Success ||
         (match.Success &&
-         // Suicide by C4 bomb or team switch should be ignored
-         (previousLines.Any(previousLine => previousLine.Contains("by the bomb")) ||
+         // Suicide by C4 bomb, network disconnect or team switch should be ignored
+         (previousLines.Any(previousLine => previousLine.Contains("disconnected")) ||
+          previousLines.Any(previousLine => previousLine.Contains("by the bomb")) ||
           previousLines.Any(previousLine => previousLine.Contains("switched from team"))))) return false;
 
     Console.WriteLine("Catch: " + line);
