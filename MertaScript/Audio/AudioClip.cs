@@ -8,16 +8,17 @@ public class AudioClip {
   private bool _playing;
   private Thread? _playThread;
 
-  public void Play(string audioFilePath) {
+  public void Play(string audioFilePath, float volume) {
     _audioFilePath = audioFilePath;
     _playing = true;
-    _playThread = new Thread(PlayClip);
+    _playThread = new Thread(() => PlayClip(volume));
     _playThread.Start();
   }
 
-  private void PlayClip() {
+  private void PlayClip(float volume) {
     using var audioFile = new AudioFileReader(_audioFilePath);
     _waveOutEvent.Init(audioFile);
+    _waveOutEvent.Volume = volume;
     _waveOutEvent.Play();
     while (_playing && _waveOutEvent.PlaybackState == PlaybackState.Playing) Thread.Sleep(10);
     Stop();

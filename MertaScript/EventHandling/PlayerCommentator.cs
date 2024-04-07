@@ -48,7 +48,7 @@ internal abstract class PlayerCommentator {
     }
 
     playerAudioClip = new AudioClip();
-    playerAudioClip.Play(path);
+    playerAudioClip.Play(path, 1);
     EventAudioFiles[playerName] = playerAudioClip;
   }
 }

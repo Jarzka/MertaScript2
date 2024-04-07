@@ -135,7 +135,7 @@ internal class GameCommentator {
     }
 
     _audioClip = new AudioClip();
-    _audioClip.Play(path);
+    _audioClip.Play(path, 0.85f);
   }
 
   private static int GetFileDuration(FileSystemInfo file) {
