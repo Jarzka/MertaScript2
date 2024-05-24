@@ -1,7 +1,16 @@
 namespace MertaScript.Log;
 
 public class LogStorage {
-  private static readonly List<string> Log = new();
+  private static readonly List<string> _log = new();
+  private static readonly object lockObject = new();
+
+  public static List<string> Log {
+    get {
+      lock (lockObject) {
+        return _log;
+      }
+    }
+  }
 
   public static void StorePlayerKilledPlayer(string sourcePlayer, string sourceTeam, string targetPlayer,
     string targetTeam,
