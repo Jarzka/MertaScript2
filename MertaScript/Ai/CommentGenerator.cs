@@ -5,18 +5,18 @@ using MertaScript.Utils;
 namespace MertaScript.Ai;
 
 public class CommentGenerator {
-  private static bool isGeneratingComment;
+  private static bool _isGeneratingComment;
   private static readonly object lockObject = new();
 
   public static bool IsGeneratingComment {
     get {
       lock (lockObject) {
-        return isGeneratingComment;
+        return _isGeneratingComment;
       }
     }
     private set {
       lock (lockObject) {
-        isGeneratingComment = value;
+        _isGeneratingComment = value;
       }
     }
   }
@@ -25,7 +25,7 @@ public class CommentGenerator {
     var log = LogStorage.GetLog();
 
     var random = new Random();
-    const double probabilityThreshold = 0.2;
+    const double probabilityThreshold = 0.15;
     var randomValue = random.NextDouble(); // Rrandom double between 0.0 and 1.0
 
     if (!Config.UseAiAnalysis || IsGeneratingComment || log.Count <= 30 ||

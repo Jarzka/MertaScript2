@@ -36,6 +36,8 @@ public abstract class GameEventHandler {
       ScanLineEnemyTeamKillClientTeamHegrenade(line) ||
       ScanLineClientTeamKillEnemyInferno(line) ||
       ScanLineEnemyTeamKillClientInferno(line) ||
+      ScanLineEnemyTeamKillClient(line) ||
+      ScanLineClientTeamKillEnemy(line) ||
       ScanLineSuicide(line, previousLines) ||
       ScanLineRoundDraw(line) ||
       ScanLineRoundStart(line) ||
@@ -192,6 +194,25 @@ public abstract class GameEventHandler {
     return true;
   }
 
+  private static bool ScanLineClientTeamKillEnemy(string line) {
+    // Assuming that specific kills have been processed already and this is just "normal" kill
+    var regEx = RegexHelper.ConstructRegexClientTeamPlayers();
+    regEx += ".* killed \".*";
+    var match = Regex.Match(line, regEx);
+
+    if (!match.Success) return false;
+    if (IsClientTeamPlayerVictim(match.Groups[0].Value)) return false;
+
+    Console.WriteLine($"Catch: {line}");
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.ClientTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.EnemyTeamName,
+      "with a gun");
+
+    return true;
+  }
+
   private static bool ScanLineEnemyTeamKillClientHeadshot(string line) {
     var regEx = ".* killed \".*";
     regEx += RegexHelper.ConstructRegexClientTeamPlayers();
@@ -208,6 +229,25 @@ public abstract class GameEventHandler {
       RegexHelper.ResolveKillerTargetPlayer(line),
       Config.ClientTeamName,
       "headhsot");
+
+    return true;
+  }
+
+  private static bool ScanLineEnemyTeamKillClient(string line) {
+    // Assuming that specific kills have been processed already and this is just "normal" kill
+    var regEx = ".* killed \".*";
+    regEx += RegexHelper.ConstructRegexClientTeamPlayers();
+    var match = Regex.Match(line, regEx);
+
+    if (!match.Success) return false;
+    if (IsClientTeamPlayerKiller(match.Groups[0].Value)) return false;
+
+    Console.WriteLine($"Catch: {line}");
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.EnemyTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.ClientTeamName,
+      "with a gun");
 
     return true;
   }
