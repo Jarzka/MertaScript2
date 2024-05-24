@@ -29,7 +29,7 @@ public class CommentGenerator {
     var randomValue = random.NextDouble(); // Rrandom double between 0.0 and 1.0
 
     if (!Config.UseAiAnalysis || IsGeneratingComment || log.Count <= 30 ||
-        GameCommentator.GetInstance().IsMatchEneded() ||
+        GameCommentator.GetInstance().IsMatchEnded() ||
         !(randomValue < probabilityThreshold)) return;
 
     IsGeneratingComment = true;

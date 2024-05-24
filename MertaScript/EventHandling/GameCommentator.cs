@@ -464,7 +464,7 @@ internal class GameCommentator {
     _majorGameActionsInThisRound = true;
   }
 
-  public bool IsMatchEneded() {
+  public bool IsMatchEnded() {
     return _isMatchEnded;
   }
 }
