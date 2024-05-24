@@ -94,7 +94,8 @@ internal class LogReader {
     // old lines are not processed if the program was restarted.
 
     if (_alreadyProcessesLinesCount == 0) {
-      Console.WriteLine("Not analysing log file on first run.");
+      Console.WriteLine(
+        "Not analysing log file on first run"); // If the application was restarted, old lines have been processed already
       _alreadyProcessesLinesCount = lines.Count;
       return;
     }

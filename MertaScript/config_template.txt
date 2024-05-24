@@ -1,5 +1,8 @@
 start = host
 
+client_team_name = Talotaikurit
+enemy_team_name = Kristolaiset
+
 host_client_team_player_names = Ismo, Seppo
 host_game_event_sounds_folder = mertaranta
 host_player_event_sounds_folder = players
@@ -12,3 +15,11 @@ host_port = 52829
 
 join_ip = localhost
 join_port = 52829
+
+log_storage_replacements = replace_this,with_this
+
+enable_ai_analysis = true
+
+ai_chatgpt_prompt_guide = Take a look at the following Counter-Strike game event log and based on it give an example of Counter-Strike commentary. The comment should be in the past tense but note that the game has not yet ended. Do not take a stand on where the game is played and when. Feel free to use capslock for some words to increase the emotional impact.
+ai_chatgpt_prompt_options = One specific prompt.|Another specific promp.
+ai_chatgpt_prompt_lengths = The comment should be between 1-7 sentences.|The comment should be between 3-7 sentences.

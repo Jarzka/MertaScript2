@@ -1,5 +1,7 @@
+using MertaScript.Ai;
 using MertaScript.Audio;
 using MertaScript.Events;
+using MertaScript.Log;
 using MertaScript.Network;
 using MertaScript.Utils;
 using NAudio.Wave;
@@ -24,7 +26,7 @@ internal class GameCommentator {
   private bool _hostageTakenTimeBonusGivenInThisRound;
   private bool _isGameRoundActive;
   private int _lastAudioFileDurationInSeconds;
-  private int _lastAudioPlayImportance;
+  private int _lastAudioPlayPriority;
   private long _lastAudioPlayTimestampInSeconds;
   private bool _majorGameActionsInThisRound;
   private int _maxRounds = int.Parse(Config.GetValueFromConfigFile("host_max_rounds"));
@@ -32,7 +34,7 @@ internal class GameCommentator {
   private long _roundTimeInSeconds = int.Parse(Config.GetValueFromConfigFile("host_round_time"));
 
   private GameCommentator() {
-    _lastAudioPlayImportance = 0;
+    _lastAudioPlayPriority = 0;
     _lastAudioPlayTimestampInSeconds = 0;
     _lastAudioFileDurationInSeconds = 0;
     _roundStartTimestampInSeconds = 0;
@@ -87,43 +89,65 @@ internal class GameCommentator {
     return percent >= value;
   }
 
+  public bool IsPlayingAudio() {
+    return _lastAudioPlayTimestampInSeconds > 0 &&
+           TimeUtils.UnixTimestamp() <
+           _lastAudioPlayTimestampInSeconds + _lastAudioFileDurationInSeconds;
+  }
+
   /**
    * Returns true if there is no audio currently playing.
    * If audio is playing, return true only if the given event is more important.
    */
-  private bool EventImportanceToBool(float importance) {
-    var isAudioStillPlaying = _lastAudioPlayTimestampInSeconds > 0 &&
-                              TimeUtils.UnixTimestamp() <
-                              _lastAudioPlayTimestampInSeconds + _lastAudioFileDurationInSeconds;
-
-    return !isAudioStillPlaying || importance >= _lastAudioPlayImportance;
+  private bool EventPriorityToBool(float importance) {
+    return !IsPlayingAudio() || importance >= _lastAudioPlayPriority;
   }
 
   public void HandleEventAsAudioComment(GameEventId gameEventId) {
-    var importance = GameEvents.EventById(gameEventId).Importance;
+    var importance = GameEvents.EventById(gameEventId).Priority;
     var probability = GameEvents.EventById(gameEventId).CommentProbability;
 
     if (!ProbabilityToBool(probability) ||
-        !EventImportanceToBool(importance)) return;
+        !EventPriorityToBool(importance)) return;
 
     var audioFolder = GameEvents.EventAudioFolderByEventId(gameEventId);
     var file = GameEvents.RandomSoundFileByEventId(gameEventId);
     SendPlaySoundCommandToClients(audioFolder, file, importance);
   }
 
-  private void SendPlaySoundCommandToClients(string audioFolder, FileSystemInfo? file, int audioFileImportance) {
+  public void HandleEventAsLiveAudioComment(string audioFilePath) {
+    SendPlayLiveSoundCommandToClients(audioFilePath, 7); // Live audio has hardcoded priority of 7
+  }
+
+  private void SendPlayLiveSoundCommandToClients(string audioFilePath, int audioFilePriority) {
+    var file = new FileInfo(audioFilePath);
+    var fileBytes = File.ReadAllBytes(audioFilePath);
+    var base64Audio = Convert.ToBase64String(fileBytes);
+
+    _lastAudioFileDurationInSeconds = GetFileDuration(file) + 2; // Include 2 seconds of transferring overload
+    _lastAudioPlayTimestampInSeconds = TimeUtils.UnixTimestamp();
+    _lastAudioPlayPriority = audioFilePriority;
+
+    if (!NetworkManager.GetInstance().IsHost()) return;
+
+    var message = "<PLAY_LIVE_SOUND_GAME|" + base64Audio + ">";
+    NetworkManager.GetInstance().SendMessageToClients(message, "<PLAY_LIVE_SOUND_GAME|BASE64>");
+  }
+
+
+  private void SendPlaySoundCommandToClients(string audioFolder, FileSystemInfo? file, int audioFilePriority) {
     if (file == null) return;
 
     var path = Config.PathGameEventSounds + audioFolder + "/" + file.Name;
 
     _lastAudioFileDurationInSeconds = GetFileDuration(file);
     _lastAudioPlayTimestampInSeconds = TimeUtils.UnixTimestamp();
-    _lastAudioPlayImportance = audioFileImportance;
+    _lastAudioPlayPriority = audioFilePriority;
 
     if (!NetworkManager.GetInstance().IsHost()) return;
 
     var message = "<PLAY_SOUND_GAME|" + path + ">";
-    NetworkManager.GetInstance().SendMessageToClients(message);
+    NetworkManager.GetInstance().SendMessageToClients(message, message);
   }
 
   public void PlayFile(string path) {
@@ -138,20 +162,33 @@ internal class GameCommentator {
     _audioClip.Play(path, 0.85f);
   }
 
+  public void PlayBase64Audio(string base64Audio) {
+    Console.WriteLine("Playing live sound!");
+    var audioBytes = Convert.FromBase64String(base64Audio);
+
+    if (_audioClip != null && _audioClip.IsPlaying()) {
+      _audioClip?.Stop();
+      Thread.Sleep(10); // Wait for the audio file to stop playing
+    }
+
+    _audioClip = new AudioClip();
+    _audioClip.Play(audioBytes, 0.85f);
+  }
+
   private static int GetFileDuration(FileSystemInfo file) {
     using var reader = new AudioFileReader(file.FullName);
     return reader.TotalTime.TotalSeconds > 0 ? (int)reader.TotalTime.TotalSeconds : 0;
   }
 
-  private int GetClientTeamPoints() {
+  public int GetClientTeamPoints() {
     return _clientTeamPoints;
   }
 
-  private int GetEnemyTeamPoints() {
+  public int GetEnemyTeamPoints() {
     return _enemyTeamPoints;
   }
 
-  private TeamSide? GetClientTeamSide() {
+  public TeamSide? GetClientTeamSide() {
     return _clientTeamSide;
   }
 
@@ -202,32 +239,43 @@ internal class GameCommentator {
 
     if (!_isGameRoundActive) return; // No need to comment time if the game round is not active
 
+    var logStorageTimeLeftPrefix = "Round time left: ";
+
     switch (roundTimeLeft) {
       case 2:
+        LogStorage.StoreText($"{logStorageTimeLeftPrefix} {roundTimeLeft} seconds");
         HandleEventAsAudioComment(GameEventId.Time002);
         break;
       case 3:
+        LogStorage.StoreText($"{logStorageTimeLeftPrefix} {roundTimeLeft} seconds");
         HandleEventAsAudioComment(GameEventId.Time003);
         break;
       case 10:
+        LogStorage.StoreText($"{logStorageTimeLeftPrefix} {roundTimeLeft} seconds");
         HandleEventAsAudioComment(GameEventId.Time010);
         break;
       case 15:
+        LogStorage.StoreText($"{logStorageTimeLeftPrefix} {roundTimeLeft} seconds");
         HandleEventAsAudioComment(GameEventId.Time015);
         break;
       case 20:
+        LogStorage.StoreText($"{logStorageTimeLeftPrefix} {roundTimeLeft} seconds");
         HandleEventAsAudioComment(GameEventId.Time020);
         break;
       case 28:
+        LogStorage.StoreText($"{logStorageTimeLeftPrefix} {roundTimeLeft} seconds");
         HandleEventAsAudioComment(GameEventId.Time028);
         break;
       case 30:
+        LogStorage.StoreText($"{logStorageTimeLeftPrefix} {roundTimeLeft} seconds");
         HandleEventAsAudioComment(GameEventId.Time030);
         break;
       case 40:
+        LogStorage.StoreText($"{logStorageTimeLeftPrefix} {roundTimeLeft} seconds");
         HandleEventAsAudioComment(GameEventId.Time040);
         break;
       case 60:
+        LogStorage.StoreText($"{logStorageTimeLeftPrefix} {roundTimeLeft} seconds");
         HandleEventAsAudioComment(GameEventId.Time060);
         break;
     }
@@ -329,9 +377,13 @@ internal class GameCommentator {
 
     // Round start event may occur in the game log after the match has ended.
     // Do not handle if the match has ended.
+    // Loading a new map should reset everything.
     if (isRoundEnded) return;
 
     StartNewRound();
+
+    // Do not comment the round start if AI-based analysis is being generated.
+    if (CommentGenerator.IsGeneratingComment) return;
 
     // Note: Massive difference needs to be checked first.
     if (GetClientTeamPoints() > GetEnemyTeamPoints() + massiveScoreDifference)
@@ -345,7 +397,7 @@ internal class GameCommentator {
       HandleEventAsAudioComment(GameEventId.RoundStartEnemyTeamWinning);
   }
 
-  public void HandleEventClientSwitchedTeam(TeamSide teamSide) {
+  public void SetClientTeam(TeamSide teamSide) {
     SetClientTeamSide(teamSide);
   }
 

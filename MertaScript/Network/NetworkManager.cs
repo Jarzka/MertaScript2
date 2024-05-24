@@ -6,7 +6,7 @@ using MertaScript.EventHandling;
 namespace MertaScript.Network;
 
 public class NetworkManager {
-  private const int BufferSize = 65535;
+  private const int BufferSize = 10 * 1024 * 1024; // should handle base64 audio
   private static NetworkManager? _instance;
   private readonly List<Client> _clients = new();
   private bool _isHost;
@@ -111,6 +111,7 @@ public class NetworkManager {
 
   public static void HandleNetworkMessage(string message) {
     foreach (var splittedMessage in SplitNetworkMessage(message)) {
+      HandleMessageTypePlayLiveGameCommentatorSound(splittedMessage);
       HandleMessageTypeConMsg(splittedMessage);
       HandleMessageTypePlayGameCommentatorSound(splittedMessage);
       HandleMessageTypePlayPlayerSound(splittedMessage);
@@ -133,6 +134,15 @@ public class NetworkManager {
     Console.WriteLine(printMessage);
   }
 
+  private static void HandleMessageTypePlayLiveGameCommentatorSound(string message) {
+    if (!message.StartsWith("<PLAY_LIVE_SOUND_GAME|")) return;
+
+    var arrayMessage = message.Split('|');
+    var base64Audio = arrayMessage[1].Substring(0, arrayMessage[1].Length - 1); // Remove last character (>)
+
+    GameCommentator.GetInstance().PlayBase64Audio(base64Audio);
+  }
+
   private static void HandleMessageTypePlayGameCommentatorSound(string message) {
     if (!message.StartsWith("<PLAY_SOUND_GAME|")) return;
 
@@ -140,7 +150,6 @@ public class NetworkManager {
     var path = arrayMessage[1].Substring(0, arrayMessage[1].Length - 1); // Remove last character (>)
 
     GameCommentator.GetInstance().PlayFile(path);
-    Console.WriteLine("Playing sound \"{0}\"", path);
   }
 
   private static void HandleMessageTypePlayPlayerSound(string message) {
@@ -151,7 +160,6 @@ public class NetworkManager {
     var path = arrayMessage[2].Substring(0, arrayMessage[2].Length - 1); // Remove last character (>)
 
     PlayerCommentator.PlayFile(playerName, path);
-    Console.WriteLine("Playing sound \"{0}\"", path);
   }
 
   private void RemoveDisconnectedClients() {
@@ -166,11 +174,11 @@ public class NetworkManager {
       }
   }
 
-  public void SendMessageToClients(string message) {
+  public void SendMessageToClients(string message, string messageToBeLogged) {
     RemoveDisconnectedClients();
 
     foreach (var client in _clients) {
-      Console.WriteLine("Sending {0} to client {1}", message, client.GetSocket());
+      Console.WriteLine("Sending {0} to client {1}", messageToBeLogged, client.GetSocket());
       var messageBytes = Encoding.UTF8.GetBytes(message);
       client.GetSocket().Send(messageBytes);
     }

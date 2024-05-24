@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using MertaScript.Ai;
 using MertaScript.EventHandling;
 using MertaScript.Events;
 
@@ -7,23 +8,15 @@ namespace MertaScript.Log;
 public abstract class GameEventHandler {
   private static readonly List<string> ClientTeamPlayerNames = Config.GetClientTeamPlayerNamesFromConfigFile();
 
-  // Constructs Regex from client team player names in the following format:
-  // (player1|player2|player3)
-  private static string ConstructRegexClientTeamPlayers() {
-    var regexPattern = "(";
-    regexPattern += string.Join("|", ClientTeamPlayerNames);
-    regexPattern += ")";
-    return regexPattern;
-  }
 
   private static bool IsClientTeamPlayerKiller(string input) {
-    var regexPattern = ConstructRegexClientTeamPlayers() + ".+killed.+";
+    var regexPattern = RegexHelper.ConstructRegexClientTeamPlayers() + ".+killed.+";
     var match = Regex.Match(input, regexPattern);
     return match.Success;
   }
 
   private static bool IsClientTeamPlayerVictim(string input) {
-    var regexPattern = ".+killed.+" + ConstructRegexClientTeamPlayers();
+    var regexPattern = ".+killed.+" + RegexHelper.ConstructRegexClientTeamPlayers();
     var match = Regex.Match(input, regexPattern);
     return match.Success;
   }
@@ -53,8 +46,10 @@ public abstract class GameEventHandler {
       ScanLineMaxRounds(line) ||
       ScanLineC4Time(line) ||
       ScanLineTakeHostage(line) ||
-      ScanLineDefuse(line) ||
+      ScanLineBeginDefuse(line) ||
       ScanLineBombPlant(line) ||
+      ScanLineBombExploded(line) ||
+      ScanLineBombDefused(line) ||
       ScanLineLoadingMap(line) ||
       ScanLineGameEnd(line);
   }
@@ -68,9 +63,9 @@ public abstract class GameEventHandler {
       GameCommentator.GetInstance().HandleEventSomeoneKilledSomeone();
     }
 
-    var clientCtKilledSomeone = ConstructRegexClientTeamPlayers();
+    var clientCtKilledSomeone = RegexHelper.ConstructRegexClientTeamPlayers();
     clientCtKilledSomeone += ".+<CT>.* killed .+";
-    var clientTKilledSomeone = ConstructRegexClientTeamPlayers();
+    var clientTKilledSomeone = RegexHelper.ConstructRegexClientTeamPlayers();
     clientTKilledSomeone += ".+<TERRORIST>.* killed .+";
 
     var clientCtKilledSomeoneMatch = Regex.Match(line, clientCtKilledSomeone);
@@ -83,21 +78,21 @@ public abstract class GameEventHandler {
 
     if (clientCtKilledSomeoneMatch.Success) {
       Console.WriteLine($"Catch: {line}");
-      GameCommentator.GetInstance().HandleEventClientSwitchedTeam(TeamSide.Ct);
+      GameCommentator.GetInstance().SetClientTeam(TeamSide.Ct);
     }
 
     if (clientTKilledSomeoneMatch.Success) {
       Console.WriteLine($"Catch: {line}");
-      GameCommentator.GetInstance().HandleEventClientSwitchedTeam(TeamSide.T);
+      GameCommentator.GetInstance().SetClientTeam(TeamSide.T);
     }
 
     return false; // This event should never stop other events from being checked
   }
 
   private static bool ScanLineClientTeamTeamkiller(string line) {
-    var regEx = ConstructRegexClientTeamPlayers();
+    var regEx = RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".* killed \".*";
-    regEx += ConstructRegexClientTeamPlayers();
+    regEx += RegexHelper.ConstructRegexClientTeamPlayers();
     var match = Regex.Match(line, regEx);
 
     if (!match.Success) return false;
@@ -105,6 +100,12 @@ public abstract class GameEventHandler {
     Console.WriteLine($"Catch: {line}");
     Console.WriteLine("Teamkiller in client team!");
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.TeamkillerClientTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.ClientTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.ClientTeamName,
+      "teamkiller!");
+
     return true;
   }
 
@@ -120,11 +121,17 @@ public abstract class GameEventHandler {
     Console.WriteLine($"Catch: {line}");
     Console.WriteLine("Teamkiller in enemy team!");
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.TeamkillerEnemyTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.EnemyTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.EnemyTeamName,
+      "teamkiller!");
+
     return true;
   }
 
   private static bool ScanLineClientTeamKillEnemyMachineGunHeadshot(string line) {
-    var regEx = ConstructRegexClientTeamPlayers();
+    var regEx = RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".* killed \".*";
     regEx += "with.*(negev|m249).*";
     regEx += "headshot";
@@ -135,11 +142,17 @@ public abstract class GameEventHandler {
 
     Console.WriteLine($"Catch: {line}");
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillHeadshotMachineGunClientTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.ClientTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.EnemyTeamName,
+      "with machine gun headhsot");
+
     return true;
   }
 
   private static bool ScanLineClientTeamJuhisKillEnemyHeadshot(string line) {
-    var regEx = ConstructRegexClientTeamPlayers();
+    var regEx = RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".* killed \".*";
     regEx += ".*with.*elite.*";
     regEx += "headshot";
@@ -150,11 +163,17 @@ public abstract class GameEventHandler {
 
     Console.WriteLine($"Catch: {line}");
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillHeadshotJuhisClientTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.ClientTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.EnemyTeamName,
+      "headhsot");
+
     return true;
   }
 
   private static bool ScanLineClientTeamKillEnemyHeadshot(string line) {
-    var regEx = ConstructRegexClientTeamPlayers();
+    var regEx = RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".* killed \".*";
     regEx += "headshot";
     var match = Regex.Match(line, regEx);
@@ -164,12 +183,18 @@ public abstract class GameEventHandler {
 
     Console.WriteLine($"Catch: {line}");
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillHeadshotClientTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.ClientTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.EnemyTeamName,
+      "headhsot");
+
     return true;
   }
 
   private static bool ScanLineEnemyTeamKillClientHeadshot(string line) {
     var regEx = ".* killed \".*";
-    regEx += ConstructRegexClientTeamPlayers();
+    regEx += RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".+headshot";
     var match = Regex.Match(line, regEx);
 
@@ -178,11 +203,17 @@ public abstract class GameEventHandler {
 
     Console.WriteLine($"Catch: {line}");
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillHeadshotEnemyTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.EnemyTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.ClientTeamName,
+      "headhsot");
+
     return true;
   }
 
   private static bool ScanLineClientTeamKillEnemyKnife(string line) {
-    var regEx = ConstructRegexClientTeamPlayers() + ".* killed \".*with.+knife";
+    var regEx = RegexHelper.ConstructRegexClientTeamPlayers() + ".* killed \".*with.+knife";
     var match = Regex.Match(line, regEx);
 
     if (!match.Success) return false;
@@ -190,11 +221,17 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillKnifeClientTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.ClientTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.EnemyTeamName,
+      "with knife");
+
     return true;
   }
 
   private static bool ScanLineClientTeamKillHegrenade(string line) {
-    var regEx = ConstructRegexClientTeamPlayers() + ".* killed \".*with.+hegrenade";
+    var regEx = RegexHelper.ConstructRegexClientTeamPlayers() + ".* killed \".*with.+hegrenade";
     var match = Regex.Match(line, regEx);
 
     if (!match.Success) return false;
@@ -202,6 +239,12 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillHegrenadeClientTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.ClientTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.EnemyTeamName,
+      "with grenade");
+
     return false;
   }
 
@@ -209,7 +252,7 @@ public abstract class GameEventHandler {
     // Actually, the RegEx thinks that someone, who does not play in client team, killed client team player.
     // However, it is very likely that the killer was enemy team player.
 
-    var regEx = ".* killed \".*" + ConstructRegexClientTeamPlayers() + ".+with.+hegrenade";
+    var regEx = ".* killed \".*" + RegexHelper.ConstructRegexClientTeamPlayers() + ".+with.+hegrenade";
     var match = Regex.Match(line, regEx);
 
     if (!match.Success) return false;
@@ -217,12 +260,18 @@ public abstract class GameEventHandler {
     if (IsClientTeamPlayerKiller(match.Groups[0].Value)) return false;
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillHegrenadeEnemyTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.EnemyTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.ClientTeamName,
+      "with grenade");
+
     return true;
   }
 
   private static bool ScanLineEnemyTeamKillClientTeamKnife(string line) {
     var regEx = ".* killed \".*";
-    regEx += ConstructRegexClientTeamPlayers();
+    regEx += RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".+with.+";
     regEx += "knife";
     var match = Regex.Match(line, regEx);
@@ -232,11 +281,17 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillKnifeEnemyTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.EnemyTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.ClientTeamName,
+      "with knife");
+
     return true;
   }
 
   private static bool ScanLineClientTeamKillEnemyInferno(string line) {
-    var regEx = ConstructRegexClientTeamPlayers();
+    var regEx = RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".* killed \".*";
     regEx += "with.+";
     regEx += "inferno";
@@ -247,12 +302,18 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillInfernoClientTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.ClientTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.EnemyTeamName,
+      "with molotov");
+
     return true;
   }
 
   private static bool ScanLineEnemyTeamKillClientInferno(string line) {
     var regEx = ".* killed \".*";
-    regEx += ConstructRegexClientTeamPlayers();
+    regEx += RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".+with.+";
     regEx += "inferno";
     var match = Regex.Match(line, regEx);
@@ -262,6 +323,12 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.KillInfernoEnemyTeam);
+    LogStorage.StorePlayerKilledPlayer(RegexHelper.ResolveKillerSourcePlayer(line),
+      Config.EnemyTeamName,
+      RegexHelper.ResolveKillerTargetPlayer(line),
+      Config.ClientTeamName,
+      "with molotov");
+
     return true;
   }
 
@@ -278,6 +345,9 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.Suicide);
+    LogStorage.StoreText(
+      $"Player \"{RegexHelper.ResolveWhoCommitedSuicide(line)}\" (Team {RegexHelper.ResolveSourcePlayerTeam(line, RegexHelper.CommittedSuicideRegex)}) commited suicide");
+
     return true;
   }
 
@@ -290,6 +360,8 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventAsAudioComment(GameEventId.RoundDraw);
+    LogStorage.StoreText("The round ended in a draw");
+
     return true;
   }
 
@@ -303,6 +375,8 @@ public abstract class GameEventHandler {
     Console.WriteLine("Catch: " + line);
 
     GameCommentator.GetInstance().HandleEventRoundStart();
+    LogStorage.StoreText("New round begins");
+
     return true;
   }
 
@@ -315,6 +389,7 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().ResetRoundTime();
+    LogStorage.StoreText("Round ended");
     return true;
   }
 
@@ -335,7 +410,23 @@ public abstract class GameEventHandler {
 
     if (!match2.Success) return false;
 
-    GameCommentator.GetInstance().HandleEventRoundEnd(TeamSide.T, int.Parse(match2.Value));
+    var currentPoints = int.Parse(match2.Value);
+    var clientScored = GameCommentator.GetInstance().GetClientTeamSide() == TeamSide.T;
+
+    // Store text first before GameCommentator updates team points.
+    if (clientScored) {
+      if (currentPoints > GameCommentator.GetInstance().GetClientTeamPoints())
+        LogStorage.StoreText($"Team {Config.ClientTeamName} scored a point! They now have {currentPoints} points");
+    }
+    else {
+      if (currentPoints > GameCommentator.GetInstance().GetEnemyTeamPoints())
+        LogStorage.StoreText($"Team {Config.EnemyTeamName} scored a point! They now have {currentPoints} points");
+    }
+
+    GameCommentator.GetInstance().HandleEventRoundEnd(TeamSide.T, currentPoints);
+
+    CommentGenerator.MaybeAnalyseLogToGenerateComment();
+
     return true;
   }
 
@@ -356,13 +447,29 @@ public abstract class GameEventHandler {
 
     if (!match2.Success) return false;
 
-    GameCommentator.GetInstance().HandleEventRoundEnd(TeamSide.Ct, int.Parse(match2.Value));
+    var currentPoints = int.Parse(match2.Value);
+    var clientScored = GameCommentator.GetInstance().GetClientTeamSide() == TeamSide.Ct;
+
+    // Store text first before GameCommentator updates team points.
+    if (clientScored) {
+      if (currentPoints > GameCommentator.GetInstance().GetClientTeamPoints())
+        LogStorage.StoreText($"Team {Config.ClientTeamName} scored a point! They now have {currentPoints} points");
+    }
+    else {
+      if (currentPoints > GameCommentator.GetInstance().GetEnemyTeamPoints())
+        LogStorage.StoreText($"Team {Config.EnemyTeamName} scored a point! They now have {currentPoints} points");
+    }
+
+    GameCommentator.GetInstance().HandleEventRoundEnd(TeamSide.Ct, currentPoints);
+
+    CommentGenerator.MaybeAnalyseLogToGenerateComment();
+
     return true;
   }
 
   private static bool ScanLineClientTeamPlayerJoinsTeam(string line) {
     // client team player joins T
-    var regEx = ConstructRegexClientTeamPlayers();
+    var regEx = RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".+switched from team.+";
     regEx += "to.*";
     regEx += "<TERRORIST>";
@@ -371,12 +478,12 @@ public abstract class GameEventHandler {
     if (match.Success) {
       Console.WriteLine("Catch: " + line);
       // We can assume that all client team players play on T
-      GameCommentator.GetInstance().HandleEventClientSwitchedTeam(TeamSide.T);
+      GameCommentator.GetInstance().SetClientTeam(TeamSide.T);
       return true;
     }
 
     // client team player joins CT
-    regEx = ConstructRegexClientTeamPlayers();
+    regEx = RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".+switched from team.+";
     regEx += "to.*";
     regEx += "<CT>";
@@ -386,7 +493,8 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     // We can assume that all client team players play on CT
-    GameCommentator.GetInstance().HandleEventClientSwitchedTeam(TeamSide.Ct);
+    GameCommentator.GetInstance().SetClientTeam(TeamSide.Ct);
+
     return true;
   }
 
@@ -444,28 +552,53 @@ public abstract class GameEventHandler {
     return true;
   }
 
-  private static bool ScanLineDefuse(string line) {
-    var regEx = "triggered.+";
-    regEx += "Begin_Bomb_Defuse";
+  private static bool ScanLineBeginDefuse(string line) {
+    var regEx = RegexHelper.BeginBombDefuseRegex;
     var match = Regex.Match(line, regEx);
 
     if (!match.Success) return false;
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventClientBeginsBombDefuse();
+    LogStorage.StoreText(
+      $"Player \"{RegexHelper.ResolveSourcePlayer(line, RegexHelper.BeginBombDefuseRegex)}\" (Team {RegexHelper.ResolveSourcePlayerTeam(line, RegexHelper.BeginBombDefuseRegex)}) started defusing the bomb.");
     return true;
   }
 
   private static bool ScanLineBombPlant(string line) {
-    var regEx = "triggered.+";
-    regEx += "Planted_The_Bomb";
+    var regEx = RegexHelper.PlantedTheBombRegex;
     var match = Regex.Match(line, regEx);
 
     if (!match.Success) return false;
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventBombPlanted();
+    LogStorage.StoreText($"Player \"{
+      RegexHelper.ResolveSourcePlayer(line, RegexHelper.PlantedTheBombRegex)
+    }\" (Team {RegexHelper.ResolveSourcePlayerTeam(line, RegexHelper.PlantedTheBombRegex)}) planted the bomb");
 
+    return true;
+  }
+
+  private static bool ScanLineBombExploded(string line) {
+    const string regEx = "Target_Bombed";
+    var match = Regex.Match(line, regEx);
+
+    if (!match.Success) return false;
+
+    Console.WriteLine("Catch: " + line);
+    LogStorage.StoreText("Bomb exploded!");
+    return true;
+  }
+
+  private static bool ScanLineBombDefused(string line) {
+    const string regEx = "Notice_Bomb_Defused";
+    var match = Regex.Match(line, regEx);
+
+    if (!match.Success) return false;
+
+    Console.WriteLine("Catch: " + line);
+    LogStorage.StoreText("Bomb has been defused!");
     return true;
   }
 
@@ -477,6 +610,8 @@ public abstract class GameEventHandler {
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventLoadingMap();
+    LogStorage.Clear();
+    LogStorage.StoreText("New match is about to begin! Both teams have 0 points.");
     return true;
   }
 

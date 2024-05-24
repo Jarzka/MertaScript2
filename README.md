@@ -2,8 +2,8 @@
 
 ## Introduction
 
-This is a standalone application which reads and analyses Counter-Strike log files in real-time and plays audio comments when something
-interesting happens.
+This is a standalone application which reads and analyses Counter-Strike log files in real-time and plays predefined audio comments when something
+interesting happens. The application also has ChatGPT and ElevenLabs integrations for creating live audio comments on the fly, how cool is that!
 
 The application is based on the original MertaScript from 2014, which was written in Python but has now been
 rewritten in C#.

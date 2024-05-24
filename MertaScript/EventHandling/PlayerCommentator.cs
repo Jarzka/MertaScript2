@@ -34,7 +34,7 @@ internal abstract class PlayerCommentator {
     if (!NetworkManager.GetInstance().IsHost()) return;
 
     var message = "<PLAY_SOUND_PLAYER|" + playerName + "|" + path + ">";
-    NetworkManager.GetInstance().SendMessageToClients(message);
+    NetworkManager.GetInstance().SendMessageToClients(message, message);
   }
 
   public static void PlayFile(string playerName, string path) {
