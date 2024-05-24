@@ -1,3 +1,4 @@
+using MertaScript.Utils;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -39,8 +40,7 @@ public class ChatGPT {
    * Picks a model with heavy emphasis on gpt-3.5-turbo (cheap), but may occasionally use gpt-4o.
    */
   private static string PickModel() {
-    var random = new Random();
-    var randomNumber = random.Next(100);
-    return randomNumber < 90 ? "gpt-3.5-turbo" : "gpt-4o";
+    var randomNumber = RandomGenerator.RandomNumber(100);
+    return randomNumber < 80 ? "gpt-3.5-turbo" : "gpt-4o";
   }
 }
