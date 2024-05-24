@@ -1,0 +1,7 @@
+namespace MertaScript.Ai;
+
+public class FiltersExample {
+  public static CommentFilterResult? Filter(string text) {
+    return null;
+  }
+}

@@ -1,0 +1,7 @@
+namespace MertaScript.Ai;
+
+public class CommentPreprocessExample {
+  public static string PreProcessGeneratedComment(string comment) {
+    return comment;
+  }
+}

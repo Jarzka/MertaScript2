@@ -2,3 +2,5 @@ config.txt
 players.json
 bin
 obj
+Ai/Filters.cs
+Ai/CommentPreprocess.cs

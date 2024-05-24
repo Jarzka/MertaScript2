@@ -11,6 +11,23 @@ public abstract class Config {
 
   public static readonly string PathLogs = GetValueFromConfigFile("host_logs_path") + "/";
 
+  public static readonly string ClientTeamName = GetValueFromConfigFile("client_team_name");
+  public static readonly string EnemyTeamName = GetValueFromConfigFile("enemy_team_name");
+
+  public static readonly string[] LogStorageReplcamenets =
+    GetValueFromConfigFile("log_storage_replacements").Split(",");
+
+  public static readonly bool UseAiAnalysis = GetValueFromConfigFile("enable_ai_analysis") == "true";
+  public static readonly string? ChatGptApiKey = Environment.GetEnvironmentVariable("MERTASCRIPT_CHATGPT_API_KEY");
+  public static readonly string ChatGptPromptGuide = GetValueFromConfigFile("ai_chatgpt_prompt_guide");
+  public static readonly string[] ChatGptPromptOptions = GetValueFromConfigFile("ai_chatgpt_prompt_options").Split("|");
+  public static readonly string[] ChatGptPromptLengths = GetValueFromConfigFile("ai_chatgpt_prompt_lengths").Split("|");
+
+  public static readonly string?
+    ElevenLabsApiKey = Environment.GetEnvironmentVariable("MERTASCRIPT_ELEVENLABS_API_KEY");
+
+  public static readonly string ElevenLabsVoiceId = GetValueFromConfigFile("ai_elevenlabs_voice_id");
+
   public static string GetValueFromConfigFile(string key) {
     using var file = new StreamReader("config.txt");
     while (file.ReadLine() is { } line)
