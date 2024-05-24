@@ -13,9 +13,10 @@ public class ChatGPT {
     var request = new RestRequest(endpoint, Method.Post);
     request.AddHeader("Authorization", $"Bearer {API_KEY}");
     request.AddHeader("Content-Type", "application/json");
+    var model = PickModel();
 
     var requestBody = new {
-      model = "gpt-3.5-turbo",
+      model,
       messages = new[] {
         new { role = "user", content = text }
       },
@@ -31,5 +32,14 @@ public class ChatGPT {
 
     dynamic responseData = JsonConvert.DeserializeObject(response.Content);
     return responseData.choices[0].message?.content;
+  }
+
+  /**
+   * Picks a model with heavy emphasis on gpt-3.5-turbo (cheap), but may occasionally use gpt-4o.
+   */
+  private static string PickModel() {
+    var random = new Random();
+    var randomNumber = random.Next(100);
+    return randomNumber < 90 ? "gpt-3.5-turbo" : "gpt-4o";
   }
 }
