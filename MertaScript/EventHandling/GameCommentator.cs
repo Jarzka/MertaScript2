@@ -25,6 +25,7 @@ internal class GameCommentator {
   private int _enemyTeamPoints;
   private bool _hostageTakenTimeBonusGivenInThisRound;
   private bool _isGameRoundActive;
+  private bool _isMatchEnded;
   private int _lastAudioFileDurationInSeconds;
   private int _lastAudioPlayPriority;
   private long _lastAudioPlayTimestampInSeconds;
@@ -116,6 +117,7 @@ internal class GameCommentator {
   }
 
   public void HandleEventAsLiveAudioComment(string audioFilePath) {
+    if (_isMatchEnded) return; // Ignore
     SendPlayLiveSoundCommandToClients(audioFilePath, 7); // Live audio has hardcoded priority of 7
   }
 
@@ -314,56 +316,80 @@ internal class GameCommentator {
     if (GetClientTeamPoints() > clientTeamPointsOld) {
       Console.WriteLine("Client team got more points");
 
-      if (GetClientTeamPoints() > _maxRounds / 2)
+      if (GetClientTeamPoints() > _maxRounds / 2) {
         HandleEventAsAudioComment(GameEventId.WinClient);
-      else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 0)
+        _isMatchEnded = true;
+      }
+      else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 0) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam10);
-      else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 1)
+      }
+      else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 1) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam11);
-      else if (GetClientTeamPoints() == 2 && GetEnemyTeamPoints() == 0)
+      }
+      else if (GetClientTeamPoints() == 2 && GetEnemyTeamPoints() == 0) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam20);
-      else if (GetClientTeamPoints() == 2 && GetEnemyTeamPoints() == 1)
+      }
+      else if (GetClientTeamPoints() == 2 && GetEnemyTeamPoints() == 1) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam21);
-      else if (GetClientTeamPoints() == 2 && GetEnemyTeamPoints() == 3)
+      }
+      else if (GetClientTeamPoints() == 2 && GetEnemyTeamPoints() == 3) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam23);
-      else if (GetClientTeamPoints() == 3 && GetEnemyTeamPoints() == 0)
+      }
+      else if (GetClientTeamPoints() == 3 && GetEnemyTeamPoints() == 0) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam30);
-      else if (GetClientTeamPoints() == 3 && GetEnemyTeamPoints() == 1)
+      }
+      else if (GetClientTeamPoints() == 3 && GetEnemyTeamPoints() == 1) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam31);
-      else if (GetClientTeamPoints() == 3 && GetEnemyTeamPoints() == 2)
+      }
+      else if (GetClientTeamPoints() == 3 && GetEnemyTeamPoints() == 2) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam32);
-      else if (GetClientTeamPoints() == 4 && GetEnemyTeamPoints() == 0)
+      }
+      else if (GetClientTeamPoints() == 4 && GetEnemyTeamPoints() == 0) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam40);
-      else if (GetClientTeamPoints() == 5 && GetEnemyTeamPoints() == 1)
+      }
+      else if (GetClientTeamPoints() == 5 && GetEnemyTeamPoints() == 1) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam51);
-      else if (GetClientTeamPoints() == 6 && GetEnemyTeamPoints() == 1)
+      }
+      else if (GetClientTeamPoints() == 6 && GetEnemyTeamPoints() == 1) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam61);
-      else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 7)
+      }
+      else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 7) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam17);
-      else if (GetClientTeamPoints() == GetEnemyTeamPoints())
+      }
+      else if (GetClientTeamPoints() == GetEnemyTeamPoints()) {
         HandleEventAsAudioComment(GameEventId.ScoreEvenClient);
-      else
+      }
+      else {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam);
+      }
     }
 
     if (GetEnemyTeamPoints() <= enemyTeamPointsOld) return;
 
     Console.WriteLine("Enemy team got more points");
 
-    if (GetEnemyTeamPoints() > _maxRounds / 2)
+    if (GetEnemyTeamPoints() > _maxRounds / 2) {
       HandleEventAsAudioComment(GameEventId.WinEnemy);
-    else if (GetClientTeamPoints() == 0 && GetEnemyTeamPoints() == 1)
+      _isMatchEnded = true;
+    }
+    else if (GetClientTeamPoints() == 0 && GetEnemyTeamPoints() == 1) {
       HandleEventAsAudioComment(GameEventId.ScoreEnemyTeam10);
-    else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 1)
+    }
+    else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 1) {
       HandleEventAsAudioComment(GameEventId.ScoreEnemyTeam11);
-    else if (GetClientTeamPoints() == 2 && GetEnemyTeamPoints() == 2)
+    }
+    else if (GetClientTeamPoints() == 2 && GetEnemyTeamPoints() == 2) {
       HandleEventAsAudioComment(GameEventId.ScoreEnemyTeam22);
-    else if (GetClientTeamPoints() == 0 && GetEnemyTeamPoints() == 2)
+    }
+    else if (GetClientTeamPoints() == 0 && GetEnemyTeamPoints() == 2) {
       HandleEventAsAudioComment(GameEventId.ScoreEnemyTeam20);
-    else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 3)
+    }
+    else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 3) {
       HandleEventAsAudioComment(GameEventId.ScoreEnemyTeam31);
-    else
+    }
+    else {
       HandleEventAsAudioComment(GameEventId.ScoreEnemyTeam);
+    }
   }
 
   private void SetClientTeamSide(TeamSide side) {
@@ -430,10 +456,15 @@ internal class GameCommentator {
   public void HandleEventLoadingMap() {
     ResetPoints();
     ResetRoundTime();
+    _isMatchEnded = false;
     _majorGameActionsInThisRound = false;
   }
 
   public void HandleEventSomeoneKilledSomeone() {
     _majorGameActionsInThisRound = true;
+  }
+
+  public bool IsMatchEneded() {
+    return _isMatchEnded;
   }
 }

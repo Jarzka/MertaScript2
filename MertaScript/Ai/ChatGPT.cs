@@ -31,7 +31,8 @@ public class ChatGPT {
     if (!response.IsSuccessful) throw new Exception("ChatGPT response error: " + response.ErrorMessage);
 
     dynamic responseData = JsonConvert.DeserializeObject(response.Content);
-    return responseData.choices[0].message?.content;
+    var responseText = responseData.choices[0].message?.content;
+    return responseText;
   }
 
   /**
