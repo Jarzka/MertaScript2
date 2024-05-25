@@ -4,3 +4,5 @@ bin
 obj
 Ai/Filters.cs
 Ai/CommentPreprocess.cs
+MertaScript.Tests/bin
+MertaScript.Tests/obj
