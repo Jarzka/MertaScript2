@@ -41,6 +41,6 @@ public class ChatGPT {
    */
   private static string PickModel() {
     var randomNumber = RandomGenerator.RandomNumber(100);
-    return randomNumber < 80 ? "gpt-3.5-turbo" : "gpt-4o";
+    return randomNumber <= 50 ? "gpt-3.5-turbo" : "gpt-4o";
   }
 }
