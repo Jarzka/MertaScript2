@@ -431,6 +431,7 @@ public abstract class GameEventHandler {
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().ResetRoundTime();
     LogStorage.StoreText("Round ended");
+    CommentGenerator.MaybeAnalyseLogToGenerateComment();
     return true;
   }
 
@@ -466,8 +467,6 @@ public abstract class GameEventHandler {
 
     GameCommentator.GetInstance().HandleEventRoundEnd(TeamSide.T, currentPoints);
 
-    CommentGenerator.MaybeAnalyseLogToGenerateComment();
-
     return true;
   }
 
@@ -502,8 +501,6 @@ public abstract class GameEventHandler {
     }
 
     GameCommentator.GetInstance().HandleEventRoundEnd(TeamSide.Ct, currentPoints);
-
-    CommentGenerator.MaybeAnalyseLogToGenerateComment();
 
     return true;
   }

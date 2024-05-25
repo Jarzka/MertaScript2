@@ -24,16 +24,17 @@ public class CommentGenerator {
   public static void MaybeAnalyseLogToGenerateComment() {
     var log = LogStorage.GetLog();
 
-    var random = new Random();
-    const double probabilityThreshold = 0.2;
-    var randomValue = random.NextDouble(); // Rrandom double between 0.0 and 1.0
+    var randomValue = RandomGenerator.RandomNumber(100);
+    const int probabilityThreshold = 25;
 
-    if (!Config.UseAiAnalysis || IsGeneratingComment || log.Count <= 30 ||
+    if (!Config.UseAiAnalysis || IsGeneratingComment || log.Count <= 15 ||
         GameCommentator.GetInstance().IsMatchEnded() ||
-        !(randomValue < probabilityThreshold)) return;
+        randomValue > probabilityThreshold)
+      return;
 
     IsGeneratingComment = true;
 
+    Console.WriteLine("Initialising AI comment generation...");
     var thread = new Thread(AnalyseLogToGenerateComment);
     thread.Start();
   }
