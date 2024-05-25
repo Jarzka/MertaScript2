@@ -9,6 +9,8 @@ public class RegexHelper {
   public static readonly string CommittedSuicideRegex = ".+committed suicide.+";
   public static readonly string PlantedTheBombRegex = ".+triggered.+Planted_The_Bomb.+";
   public static readonly string BeginBombDefuseRegex = ".+triggered.+Begin_Bomb_Defuse.+";
+  public static readonly string TouchHostageRegex = ".+triggered.+Touched_A_Hostage.+";
+  public static readonly string RescueHostageRegex = ".+triggered.+Rescued_A_Hostage.+";
 
   // Constructs Regex from client team player names in the following format:
   // (player1|player2|player3)

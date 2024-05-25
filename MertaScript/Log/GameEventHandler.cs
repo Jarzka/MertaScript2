@@ -48,6 +48,7 @@ public abstract class GameEventHandler {
       ScanLineMaxRounds(line) ||
       ScanLineC4Time(line) ||
       ScanLineTakeHostage(line) ||
+      ScanLineRescueHostage(line) ||
       ScanLineBeginDefuse(line) ||
       ScanLineBombPlant(line) ||
       ScanLineBombExploded(line) ||
@@ -581,14 +582,27 @@ public abstract class GameEventHandler {
   }
 
   private static bool ScanLineTakeHostage(string line) {
-    var regEx = "triggered.+";
-    regEx += "Touched_A_Hostage";
+    var regEx = RegexHelper.TouchHostageRegex;
     var match = Regex.Match(line, regEx);
 
     if (!match.Success) return false;
 
     Console.WriteLine("Catch: " + line);
     GameCommentator.GetInstance().HandleEventHostageTaken();
+    LogStorage.StoreText(
+      $"Player {RegexHelper.ResolveSourcePlayer(line, RegexHelper.TouchHostageRegex)} is trying to save a hostage.");
+    return true;
+  }
+
+  private static bool ScanLineRescueHostage(string line) {
+    var regEx = RegexHelper.RescueHostageRegex;
+    var match = Regex.Match(line, regEx);
+
+    if (!match.Success) return false;
+
+    Console.WriteLine("Catch: " + line);
+    LogStorage.StoreText(
+      $"Player {RegexHelper.ResolveSourcePlayer(line, RegexHelper.RescueHostageRegex)} saved a hostage!");
     return true;
   }
 
