@@ -6,7 +6,7 @@ using MertaScript.EventHandling;
 namespace MertaScript.Network;
 
 public class NetworkManager {
-  private const int BufferSize = 10 * 1024 * 1024; // should handle base64 audio
+  private const int BufferSize = 1024;
   private static NetworkManager? _instance;
   private readonly List<Client> _clients = new();
   private bool _isHost;
@@ -83,15 +83,33 @@ public class NetworkManager {
 
       // Listen server messages
 
+      var stringBuilder = new StringBuilder();
+
       while (_running)
         try {
           var buffer = new byte[BufferSize];
           var bytesRead = clientSocket.Receive(buffer);
           if (bytesRead <= 0) continue;
 
-          var data = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-          var decodeMessage = new NetworkMessageDecoderThread(data);
-          decodeMessage.Run();
+          var receivedString = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+          stringBuilder.Append(receivedString);
+
+          var allReceivedText = stringBuilder.ToString();
+
+          if (!allReceivedText.Contains('>')) continue; // End of message NOT reached
+
+          Console.WriteLine("Handling network message...");
+
+          var completeMessages = ParseCompleteNetworkMessages(allReceivedText);
+          var partialMessageAtTheEnd = ParsePartialEndMessage(allReceivedText);
+
+          foreach (var message in completeMessages) {
+            var decodeMessage = new NetworkMessageDecoderThread(message);
+            decodeMessage.Run();
+          }
+
+          stringBuilder.Clear();
+          stringBuilder.Append(partialMessageAtTheEnd);
         }
         catch (SocketException e) {
           Console.WriteLine("Error: " + e.Message);
@@ -103,6 +121,27 @@ public class NetworkManager {
       Console.WriteLine("Disconnected. Trying again in a few seconds.");
       Thread.Sleep(2000);
     }
+  }
+
+  public static List<string> ParseCompleteNetworkMessages(string receivedString) {
+    var completeMessages = new List<string>();
+
+    var newMessageStartIndex = 0;
+    for (var i = 0; i < receivedString.Length; i++)
+      if (receivedString[i] == '>') {
+        var substring = receivedString.Substring(newMessageStartIndex, i - newMessageStartIndex + 1);
+        completeMessages.Add(substring);
+        newMessageStartIndex = i + 1;
+      }
+
+    return completeMessages;
+  }
+
+  public static string ParsePartialEndMessage(string input) {
+    if (input.EndsWith(">")) return ""; // There is no partial message available
+
+    var lastIndex = input.LastIndexOf('>');
+    return input.Substring(lastIndex + 1);
   }
 
   public bool IsHost() {
