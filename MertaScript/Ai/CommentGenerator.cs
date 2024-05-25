@@ -77,7 +77,7 @@ public class CommentGenerator {
       var audioFilePath = ElevenLabs.GenerateAudio(filteredComment);
 
       // Wait for game commentator to be available
-      while (GameCommentator.GetInstance().IsPlayingAudio()) Thread.Sleep(4000);
+      while (GameCommentator.GetInstance().IsPlayingAudio()) Thread.Sleep(3000);
       GameCommentator.GetInstance().HandleEventAsLiveAudioComment(audioFilePath);
     }
     catch (Exception e) {
