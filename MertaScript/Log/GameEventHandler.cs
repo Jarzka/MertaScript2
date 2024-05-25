@@ -155,7 +155,7 @@ public abstract class GameEventHandler {
   }
 
   private static bool ScanLineClientTeamJuhisKillEnemyHeadshot(string line) {
-    var regEx = RegexHelper.ConstructRegexClientTeamPlayers();
+    var regEx = "(Juhiz|Juhis|Raikiri)"; // Hardcoded on purpose
     regEx += ".* killed \".*";
     regEx += ".*with.*elite.*";
     regEx += "headshot";
