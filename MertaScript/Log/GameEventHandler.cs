@@ -523,7 +523,7 @@ public abstract class GameEventHandler {
       return true;
     }
 
-    // client team player joins CT
+    // Client team player joins CT
     regEx = RegexHelper.ConstructRegexClientTeamPlayers();
     regEx += ".+switched from team.+";
     regEx += "to.*";
