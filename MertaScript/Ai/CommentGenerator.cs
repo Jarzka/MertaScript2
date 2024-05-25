@@ -25,7 +25,7 @@ public class CommentGenerator {
     var log = LogStorage.GetLog();
 
     var randomValue = RandomGenerator.RandomNumber(100);
-    const int probabilityThreshold = 25;
+    const int probabilityThreshold = 33;
 
     if (!Config.UseAiAnalysis || IsGeneratingComment || log.Count <= 15 ||
         GameCommentator.GetInstance().IsMatchEnded() ||
