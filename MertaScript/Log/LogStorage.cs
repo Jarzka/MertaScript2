@@ -25,6 +25,7 @@ public class LogStorage {
   }
 
   public static void Clear() {
+    Console.WriteLine("Clearing log storage.");
     Log.Clear();
   }
 

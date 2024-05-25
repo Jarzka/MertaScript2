@@ -318,6 +318,7 @@ internal class GameCommentator {
       if (GetClientTeamPoints() > _maxRounds / 2) {
         HandleEventAsAudioComment(GameEventId.WinClient);
         _isMatchEnded = true;
+        LogStorage.Clear();
       }
       else if (GetClientTeamPoints() == 1 && GetEnemyTeamPoints() == 0) {
         HandleEventAsAudioComment(GameEventId.ScoreClientTeam10);
@@ -370,6 +371,7 @@ internal class GameCommentator {
     if (GetEnemyTeamPoints() > _maxRounds / 2) {
       HandleEventAsAudioComment(GameEventId.WinEnemy);
       _isMatchEnded = true;
+      LogStorage.Clear();
     }
     else if (GetClientTeamPoints() == 0 && GetEnemyTeamPoints() == 1) {
       HandleEventAsAudioComment(GameEventId.ScoreEnemyTeam10);
@@ -461,6 +463,7 @@ internal class GameCommentator {
 
   public void HandleEventSomeoneKilledSomeone() {
     _majorGameActionsInThisRound = true;
+    _isMatchEnded = false;
   }
 
   public bool IsMatchEnded() {
