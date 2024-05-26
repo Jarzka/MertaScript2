@@ -11,6 +11,8 @@ public class RegexHelper {
   public static readonly string BeginBombDefuseRegex = ".+triggered.+Begin_Bomb_Defuse.+";
   public static readonly string TouchHostageRegex = ".+triggered.+Touched_A_Hostage.+";
   public static readonly string RescueHostageRegex = ".+triggered.+Rescued_A_Hostage.+";
+  public static readonly string SwitchedToCTRegex = ".+switched from team.+to.*<CT>";
+  public static readonly string SwitchedToTRegex = ".+switched from team.+to.*<TERRORIST>";
 
   // Constructs Regex from client team player names in the following format:
   // (player1|player2|player3)
@@ -78,7 +80,7 @@ public class RegexHelper {
       }
     }
 
-    throw new Exception("Unable to resolve source player from text: " + line);
+    return "?";
   }
 
   public static string ResolveTargetPlayer(string line, string action) {
@@ -102,6 +104,6 @@ public class RegexHelper {
       }
     }
 
-    throw new Exception("Unable to resolve target player from text: " + line);
+    return "?";
   }
 }

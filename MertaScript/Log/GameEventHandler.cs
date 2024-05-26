@@ -508,23 +508,22 @@ public abstract class GameEventHandler {
   private static bool ScanLineClientTeamPlayerJoinsTeam(string line) {
     // client team player joins T
     var regEx = RegexHelper.ConstructRegexClientTeamPlayers();
-    regEx += ".+switched from team.+";
-    regEx += "to.*";
-    regEx += "<TERRORIST>";
+    regEx += RegexHelper.SwitchedToTRegex;
     var match = Regex.Match(line, regEx);
 
     if (match.Success) {
       Console.WriteLine("Catch: " + line);
       // We can assume that all client team players play on T
       GameCommentator.GetInstance().SetClientTeam(TeamSide.T);
+      LogStorage.StoreText(
+        $"Team {Config.ClientTeamName} and their players are now playing as Terrorist. Team {Config.EnemyTeamName} and their players are now playing as Counter-Terrorist.");
+
       return true;
     }
 
     // Client team player joins CT
     regEx = RegexHelper.ConstructRegexClientTeamPlayers();
-    regEx += ".+switched from team.+";
-    regEx += "to.*";
-    regEx += "<CT>";
+    regEx += RegexHelper.SwitchedToCTRegex;
     match = Regex.Match(line, regEx);
 
     if (!match.Success) return false;
@@ -532,6 +531,9 @@ public abstract class GameEventHandler {
     Console.WriteLine("Catch: " + line);
     // We can assume that all client team players play on CT
     GameCommentator.GetInstance().SetClientTeam(TeamSide.Ct);
+    LogStorage.StoreText(
+      $"Team {Config.ClientTeamName} and their players are now playing as Counter-Terrorist. Team {Config.EnemyTeamName} and their players are now playing as Terrorist.");
+
 
     return true;
   }
