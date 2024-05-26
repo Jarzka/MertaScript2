@@ -117,7 +117,7 @@ internal class GameCommentator {
   }
 
   public void HandleEventAsLiveAudioComment(string audioFilePath) {
-    SendPlayLiveSoundCommandToClients(audioFilePath, 7); // Live audio has hardcoded priority of 7
+    SendPlayLiveSoundCommandToClients(audioFilePath, 6); // Live audio has hardcoded priority of 6
   }
 
   private void SendPlayLiveSoundCommandToClients(string audioFilePath, int audioFilePriority) {

@@ -3,70 +3,70 @@ namespace MertaScript.Events;
 public abstract class GameEvents {
   private static readonly CommentableGameEvent[] GameEventsList = {
     new() {
-      Id = GameEventId.ScoreEnemyTeam, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreEnemyTeam, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam10, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam10, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam11, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam11, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam20, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam20, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam21, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam21, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam22, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam22, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam30, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam30, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam31, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam31, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam32, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam32, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam40, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam40, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam51, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam51, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam61, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam61, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam17, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam17, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreClientTeam23, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreClientTeam23, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreEnemyTeam10, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreEnemyTeam10, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreEnemyTeam20, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreEnemyTeam20, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreEnemyTeam31, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreEnemyTeam31, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreEnemyTeam11, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreEnemyTeam11, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreEnemyTeam22, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreEnemyTeam22, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.ScoreEvenClient, CommentProbability = 100, Priority = 5
+      Id = GameEventId.ScoreEvenClient, CommentProbability = 100, Priority = 6
     },
     new() {
-      Id = GameEventId.RoundDraw, CommentProbability = 100, Priority = 5
+      Id = GameEventId.RoundDraw, CommentProbability = 100, Priority = 6
     },
     new() {
       Id = GameEventId.WinClient, CommentProbability = 100, Priority = 10
@@ -81,7 +81,7 @@ public abstract class GameEvents {
       Id = GameEventId.KillKnifeClientTeam, CommentProbability = 100, Priority = 8
     },
     new() {
-      Id = GameEventId.KillKnifeEnemyTeam, CommentProbability = 100, Priority = 5
+      Id = GameEventId.KillKnifeEnemyTeam, CommentProbability = 100, Priority = 8
     },
     new() {
       Id = GameEventId.KillHegrenadeClientTeam, CommentProbability = 100, Priority = 5
