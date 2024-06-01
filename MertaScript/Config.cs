@@ -19,9 +19,16 @@ public abstract class Config {
 
   public static readonly bool UseAiAnalysis = GetValueFromConfigFile("enable_ai_analysis") == "true";
   public static readonly string? ChatGptApiKey = Environment.GetEnvironmentVariable("MERTASCRIPT_CHATGPT_API_KEY");
-  public static readonly string ChatGptPromptGuide = GetValueFromConfigFile("ai_chatgpt_prompt_guide");
-  public static readonly string[] ChatGptPromptOptions = GetValueFromConfigFile("ai_chatgpt_prompt_options").Split("|");
-  public static readonly string[] ChatGptPromptLengths = GetValueFromConfigFile("ai_chatgpt_prompt_lengths").Split("|");
+  public static readonly string ChatGptLogPromptGuide = GetValueFromConfigFile("ai_chatgpt_log_prompt_guide");
+
+  public static readonly string[] ChatGptLogPromptOptions =
+    GetValueFromConfigFile("ai_chatgpt_log_prompt_options").Split("|");
+
+  public static readonly string[] ChatGptLogPromptLengths =
+    GetValueFromConfigFile("ai_chatgpt_log_prompt_lengths").Split("|");
+
+  public static readonly string[] ChatGptGenericPrompts =
+    GetValueFromConfigFile("ai_chatgpt_generic_prompt").Split("|");
 
   public static readonly string?
     ElevenLabsApiKey = Environment.GetEnvironmentVariable("MERTASCRIPT_ELEVENLABS_API_KEY");

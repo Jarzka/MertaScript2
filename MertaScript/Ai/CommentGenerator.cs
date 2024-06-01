@@ -4,6 +4,11 @@ using MertaScript.Utils;
 
 namespace MertaScript.Ai;
 
+public enum PromptType {
+  Generic,
+  GameLog
+}
+
 public class CommentGenerator {
   private static bool _isGeneratingComment;
   private static readonly object lockObject = new();
@@ -45,17 +50,26 @@ public class CommentGenerator {
         throw new Exception("Unable to use AI generator without API keys!");
 
       Console.WriteLine("Generating AI comment...");
-      var logPrompt = ReplaceTextsInLog(LogStorage.AsText(), Config.LogStorageReplcamenets);
-      var prompt = Config.ChatGptPromptGuide + " " +
-                   Config.ChatGptPromptOptions[RandomGenerator.RandomNumber(Config.ChatGptPromptOptions.Length)] + " " +
-                   Config.ChatGptPromptLengths[RandomGenerator.RandomNumber(Config.ChatGptPromptLengths.Length)] +
-                   "\n\nThe log file:\n\n" + logPrompt;
+      var logWithReplacedTexts = ReplaceTextsInLog(LogStorage.AsText(), Config.LogStorageReplcamenets);
+      var logPrompt = Config.ChatGptLogPromptGuide + " " +
+                      Config.ChatGptLogPromptOptions[
+                        RandomGenerator.RandomNumber(Config.ChatGptLogPromptOptions.Length)] +
+                      " " +
+                      Config.ChatGptLogPromptLengths[
+                        RandomGenerator.RandomNumber(Config.ChatGptLogPromptLengths.Length)] +
+                      "\n\nThe log file:\n\n" + logWithReplacedTexts;
+      var genericPrompt =
+        Config.ChatGptGenericPrompts[RandomGenerator.RandomNumber(Config.ChatGptGenericPrompts.Length)];
+      var promptType = PickPromptType();
+      var finalPrompt = promptType == PromptType.Generic ? genericPrompt : logPrompt;
+
       var filteredComment = "";
       var currentAttempt = 0;
       const int maxAttempts = 5;
 
+
       while (true) {
-        var comment = ChatGPT.GenerateComment(prompt);
+        var comment = ChatGPT.GenerateComment(finalPrompt);
         var preprocessedComment = CommentPreprocess.PreProcessGeneratedComment(comment);
         var filterResult = Filters.Filter(preprocessedComment);
 
@@ -101,5 +115,10 @@ public class CommentGenerator {
     }
 
     return log;
+  }
+
+  private static PromptType PickPromptType() {
+    var randomNumber = RandomGenerator.RandomNumber(100);
+    return randomNumber <= 8 ? PromptType.Generic : PromptType.GameLog;
   }
 }

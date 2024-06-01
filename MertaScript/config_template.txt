@@ -20,6 +20,8 @@ log_storage_replacements = replace_this,with_this
 
 enable_ai_analysis = true
 
-ai_chatgpt_prompt_guide = Take a look at the following Counter-Strike game event log and based on it give an example of Counter-Strike commentary. The comment should be in the past tense but note that the game has not yet ended. Do not take a stand on where the game is played and when. Feel free to use capslock for some words to increase the emotional impact.
-ai_chatgpt_prompt_options = One specific prompt.|Another specific promp.
-ai_chatgpt_prompt_lengths = The comment should be between 1-7 sentences.|The comment should be between 3-7 sentences.
+ai_chatgpt_log_prompt_guide = Take a look at the following Counter-Strike game event log and based on it give an example of Counter-Strike commentary. The comment should be in the past tense but note that the game has not yet ended. Do not take a stand on where the game is played and when. Feel free to use capslock for some words to increase the emotional impact.
+ai_chatgpt_log_prompt_options = One specific prompt.|Another specific promp.
+ai_chatgpt_log_prompt_lengths = The comment should be between 1-7 sentences.|The comment should be between 3-7 sentences.
+
+ai_chatgpt_generic_prompt = Tell us a Counter-Strike related joke|Tell us a very funny Counter-Strike related joke
