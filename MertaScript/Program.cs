@@ -1,4 +1,5 @@
-﻿using MertaScript.EventHandling;
+﻿using MertaScript.Ai;
+using MertaScript.EventHandling;
 using MertaScript.Log;
 using MertaScript.Network;
 
@@ -31,6 +32,32 @@ internal class Program {
   }
 
   private void Exec() {
+    if (Config.UseAiAnalysis) {
+      Console.WriteLine("AI analysis enabled. Testing APIs...");
+
+      try {
+        Console.WriteLine("Testing ChatGPT...");
+        var comment = ChatGPT.GenerateComment("Testing API access. Say anything.");
+        Console.WriteLine("ChatGPT OK: " + comment);
+      }
+      catch (Exception e) {
+        Console.WriteLine("ChatGPT failed: " + e.Message);
+        throw e;
+      }
+
+      try {
+        Console.WriteLine("Testing ElevenLabs...");
+        var audioFilePath = ElevenLabs.GenerateAudio("Testing AI access");
+        Console.WriteLine("ElevenLabs OK: " + audioFilePath);
+      }
+      catch (Exception e) {
+        Console.WriteLine("ElevenLabs failed: " + e.Message);
+        throw e;
+      }
+
+      Console.WriteLine("AI APIs OK!");
+    }
+
     switch (_startMethod) {
       case "host":
         Host();

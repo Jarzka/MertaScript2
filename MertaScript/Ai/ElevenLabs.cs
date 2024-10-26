@@ -37,7 +37,8 @@ public static class ElevenLabs {
 
     var response = client.Execute<dynamic>(request);
 
-    if (!response.IsSuccessful) throw new Exception("ElevenLabs response error: " + response.ErrorMessage);
+    if (!response.IsSuccessful)
+      throw new Exception("ElevenLabs response error: " + response.ErrorMessage + " " + response.Content);
 
     using var outputStream = new FileStream(FILE_PATH, FileMode.Create, FileAccess.Write, FileShare.None);
     var buffer = new byte[CHUNK_SIZE];
